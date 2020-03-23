@@ -1,0 +1,215 @@
+import cv2
+import os
+from PIL import Image
+import imagehash
+import pickle
+import numpy
+import shutil 
+
+path='/Users/mahannan/Pictures/UN3'
+PikPath='/Users/mahannan/Pictures/UN3_data'
+#path='/Users/mahannan/Audia/UN'
+
+
+
+folders = os.listdir(path)
+folders.sort()
+LenFolders = len(folders)
+for folder in folders[1:]:
+	#print 'folder is   ', folder
+	if(folder.find('DS_Store')>-1):
+		#print 'DS store !!!!!!!!!!!!!!!!!!!!!jump'
+		continue
+	ImgPath=path+'/'+folder
+	print 'image path is ', ImgPath
+	#PikPath=ImgPath+'/DS_Store_Pik'
+	print 'Pickle path is ', PikPath
+	ImgList=os.listdir(ImgPath)
+	ImgList.sort()
+	for idx in range(len(ImgList)):
+		OrgName=ImgList[idx]
+		print 'precheck Now in ', OrgName
+		if(OrgName.find('DS_Store')>-1):
+			print 'skip DS store jump with idx ', idx
+			break
+	ImgList.remove(OrgName)
+	for idx in range(len(ImgList)):
+		OrgName=ImgList[idx]
+		print 'precheck again Now in ', OrgName
+		if(OrgName.find('DS_Store')>-1):
+			print 'why another DS store???? !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ', idx
+			break		
+	#ImgHash=[x for x in range(len(ImgList))]
+	with open(os.path.join(PikPath,'ImgaHash128'), 'rb') as f:
+		ImgaHash = pickle.load(f)
+	with open(os.path.join(PikPath,'ImgpHash128'), 'rb') as f:
+		ImgpHash = pickle.load(f)
+	with open(os.path.join(PikPath,'ImgdHash128'), 'rb') as f:
+		ImgdHash = pickle.load(f)
+	with open(os.path.join(PikPath,'ImgwhHash128'), 'rb') as f:
+		ImgwhHash = pickle.load(f)
+	#with open(os.path.join(PikPath,'ImgwdHash128'), 'rb') as f:
+		#ImgwdHash = pickle.load(f)
+	ImgHash=ImgaHash
+	diff=[999999999 for x in range(len(ImgList))]
+	ImgChkList=[0 for x in range(len(ImgList))]
+	#Globalidx=0
+	findidx2=0
+	#Globalidx=Globalidx+1
+	#TgtName='AVG'+str(Globalidx).zfill(3)+'.jpg'
+	#shutil.copyfile(os.path.join(ImgPath,ImgList[idxidx[findidx2]]), os.path.join(ImgPath,TgtName))
+	#ImgChkList[findidx2]=1
+	for Globalidx in range(len(ImgList)):
+		TgtName='AVG'+str(Globalidx).zfill(3)+'.jpg'
+		if(Globalidx==0):
+			shutil.copyfile(os.path.join(ImgPath,ImgList[0]), os.path.join(ImgPath,TgtName))
+			ImgChkList[0]=1
+#			findidx2=findidx2+1
+			continue
+		print 'avg Hash =================================================================='+str(len(ImgHash))
+		# get diff for ImgHash[findidx2]
+		for idx in range(len(diff)):
+			#if(idx<1):
+			#	continue
+			diff[idx]=ImgHash[idx]-ImgHash[findidx2]
+			print idx, '   ', diff[idx], '  against ', os.path.join(ImgPath,ImgList[idx])
+		#print 'avg Hash diff =================================================================='+str(len(ImgHash))
+		#for idx in range(len(diff)):
+			#print idx, '   ', diff[idx], '   ', os.path.join(ImgPath,ImgList[idx])
+		# sort diff
+		vals = numpy.array(diff)
+		idxidx = numpy.argsort(vals)
+		#print 'avg hash sort and copy =================================================================='
+		# get next ONE image 		
+		for findidx in range(len(idxidx)):
+			if(ImgChkList[idxidx[findidx]]>0):
+				continue
+			print idxidx[findidx], '   ', diff[idxidx[findidx]], '   copying file ', os.path.join(ImgPath,ImgList[idxidx[findidx]]), '   ', os.path.join(ImgPath,TgtName)
+			shutil.copyfile(os.path.join(ImgPath,ImgList[idxidx[findidx]]), os.path.join(ImgPath,TgtName))
+			ImgChkList[idxidx[findidx]]=1
+			break
+		findidx2=idxidx[findidx]
+	ImgHash=ImgpHash
+	diff=[999999999 for x in range(len(ImgList))]
+	ImgChkList=[0 for x in range(len(ImgList))]
+	#Globalidx=0
+	findidx2=0
+	#Globalidx=Globalidx+1
+	#TgtName='AVG'+str(Globalidx).zfill(3)+'.jpg'
+	#shutil.copyfile(os.path.join(ImgPath,ImgList[idxidx[findidx2]]), os.path.join(ImgPath,TgtName))
+	#ImgChkList[findidx2]=1
+	for Globalidx in range(len(ImgList)):
+		TgtName='DCT'+str(Globalidx).zfill(3)+'.jpg'
+		if(Globalidx==0):
+			shutil.copyfile(os.path.join(ImgPath,ImgList[0]), os.path.join(ImgPath,TgtName))
+			ImgChkList[0]=1
+#			findidx2=findidx2+1
+			continue
+		print 'avg Hash =================================================================='+str(len(ImgHash))
+		# get diff for ImgHash[findidx2]
+		for idx in range(len(diff)):
+			#if(idx<1):
+			#	continue
+			diff[idx]=ImgHash[idx]-ImgHash[findidx2]
+			print idx, '   ', diff[idx], '  against ', os.path.join(ImgPath,ImgList[idx])
+		#print 'avg Hash diff =================================================================='+str(len(ImgHash))
+		#for idx in range(len(diff)):
+			#print idx, '   ', diff[idx], '   ', os.path.join(ImgPath,ImgList[idx])
+		# sort diff
+		vals = numpy.array(diff)
+		idxidx = numpy.argsort(vals)
+		#print 'avg hash sort and copy =================================================================='
+		# get next ONE image 		
+		for findidx in range(len(idxidx)):
+			if(ImgChkList[idxidx[findidx]]>0):
+				continue
+			print idxidx[findidx], '   ', diff[idxidx[findidx]], '   copying file ', os.path.join(ImgPath,ImgList[idxidx[findidx]]), '   ', os.path.join(ImgPath,TgtName)
+			shutil.copyfile(os.path.join(ImgPath,ImgList[idxidx[findidx]]), os.path.join(ImgPath,TgtName))
+			ImgChkList[idxidx[findidx]]=1
+			break
+		findidx2=idxidx[findidx]
+	ImgHash=ImgdHash
+	diff=[999999999 for x in range(len(ImgList))]
+	ImgChkList=[0 for x in range(len(ImgList))]
+	#Globalidx=0
+	findidx2=0
+	#Globalidx=Globalidx+1
+	#TgtName='AVG'+str(Globalidx).zfill(3)+'.jpg'
+	#shutil.copyfile(os.path.join(ImgPath,ImgList[idxidx[findidx2]]), os.path.join(ImgPath,TgtName))
+	#ImgChkList[findidx2]=1
+	for Globalidx in range(len(ImgList)):
+		TgtName='DIF'+str(Globalidx).zfill(3)+'.jpg'
+		if(Globalidx==0):
+			shutil.copyfile(os.path.join(ImgPath,ImgList[0]), os.path.join(ImgPath,TgtName))
+			ImgChkList[0]=1
+#			findidx2=findidx2+1
+			continue
+		print 'avg Hash =================================================================='+str(len(ImgHash))
+		# get diff for ImgHash[findidx2]
+		for idx in range(len(diff)):
+			#if(idx<1):
+			#	continue
+			diff[idx]=ImgHash[idx]-ImgHash[findidx2]
+			print idx, '   ', diff[idx], '  against ', os.path.join(ImgPath,ImgList[idx])
+		#print 'avg Hash diff =================================================================='+str(len(ImgHash))
+		#for idx in range(len(diff)):
+			#print idx, '   ', diff[idx], '   ', os.path.join(ImgPath,ImgList[idx])
+		# sort diff
+		vals = numpy.array(diff)
+		idxidx = numpy.argsort(vals)
+		#print 'avg hash sort and copy =================================================================='
+		# get next ONE image 		
+		for findidx in range(len(idxidx)):
+			if(ImgChkList[idxidx[findidx]]>0):
+				continue
+			print idxidx[findidx], '   ', diff[idxidx[findidx]], '   copying file ', os.path.join(ImgPath,ImgList[idxidx[findidx]]), '   ', os.path.join(ImgPath,TgtName)
+			shutil.copyfile(os.path.join(ImgPath,ImgList[idxidx[findidx]]), os.path.join(ImgPath,TgtName))
+			ImgChkList[idxidx[findidx]]=1
+			break
+		findidx2=idxidx[findidx]
+	ImgHash=ImgwhHash
+	diff=[999999999 for x in range(len(ImgList))]
+	ImgChkList=[0 for x in range(len(ImgList))]
+	#Globalidx=0
+	findidx2=0
+	#Globalidx=Globalidx+1
+	#TgtName='AVG'+str(Globalidx).zfill(3)+'.jpg'
+	#shutil.copyfile(os.path.join(ImgPath,ImgList[idxidx[findidx2]]), os.path.join(ImgPath,TgtName))
+	#ImgChkList[findidx2]=1
+	for Globalidx in range(len(ImgList)):
+		TgtName='WVE'+str(Globalidx).zfill(3)+'.jpg'
+		if(Globalidx==0):
+			shutil.copyfile(os.path.join(ImgPath,ImgList[0]), os.path.join(ImgPath,TgtName))
+			ImgChkList[0]=1
+#			findidx2=findidx2+1
+			continue
+		print 'avg Hash =================================================================='+str(len(ImgHash))
+		# get diff for ImgHash[findidx2]
+		for idx in range(len(diff)):
+			#if(idx<1):
+			#	continue
+			diff[idx]=ImgHash[idx]-ImgHash[findidx2]
+			print idx, '   ', diff[idx], '  against ', os.path.join(ImgPath,ImgList[idx])
+		#print 'avg Hash diff =================================================================='+str(len(ImgHash))
+		#for idx in range(len(diff)):
+			#print idx, '   ', diff[idx], '   ', os.path.join(ImgPath,ImgList[idx])
+		# sort diff
+		vals = numpy.array(diff)
+		idxidx = numpy.argsort(vals)
+		#print 'avg hash sort and copy =================================================================='
+		# get next ONE image 		
+		for findidx in range(len(idxidx)):
+			if(ImgChkList[idxidx[findidx]]>0):
+				continue
+			print idxidx[findidx], '   ', diff[idxidx[findidx]], '   copying file ', os.path.join(ImgPath,ImgList[idxidx[findidx]]), '   ', os.path.join(ImgPath,TgtName)
+			shutil.copyfile(os.path.join(ImgPath,ImgList[idxidx[findidx]]), os.path.join(ImgPath,TgtName))
+			ImgChkList[idxidx[findidx]]=1
+			break
+		findidx2=idxidx[findidx]
+	
+	
+	
+	
+	
+	
+
