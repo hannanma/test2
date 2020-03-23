@@ -1,0 +1,109 @@
+import cv2
+import os
+
+# change this manually where you host your folders of images, under this path there should be 1 or multiple folders, ONLY jpg images inside each folder.
+# I download those image albums manually from mrcong.com --- thanks Mr Cong from vietnan, I believe your family name should Pho as the pho in delicious, not Tran as the tran in beady-little-eye-asian-farks!
+path='/Users/mahannan/Pictures/UN'
+#path='/Users/mahannan/Audia/UN'
+
+# this part of code goes in each folders, deal with the bad-apple "DS_Store" folder crap
+# and call openCV to: rotate image in order to fully utilize your sub-3K computer display when you are trying to be happy with a 4K/5K/8K UHD image of beauty
+# and call open CV to: resize image with odd numbers in width or height, ffmpeg does not like those images. I have to loose a row or a colum of beauty
+# and rename the file name to form an image sequence for ffmpeg to pick up to transcode a video
+
+folders = os.listdir(path)
+folders.sort()
+LenFolders = len(folders)
+for folder in folders[1:]:
+	#print 'folder is   ', folder
+	if(folder.find('DS_Store')>-1):
+		#print 'DS store !!!!!!!!!!!!!!!!!!!!!jump'
+		continue
+	ImgPath=path+'/'+folder
+	ImgList=os.listdir(ImgPath)
+	ImgList.sort()
+	for idx in range(len(ImgList)):
+		OrgName=ImgList[idx]
+		if(OrgName.find('DS_Store')>-1):
+			#print 'DS store !!!!!!!!!!!!!!!!!!!!!jump'
+			continue
+		TgtName='P'+str(idx+1).zfill(3)+'.jpg'	
+		img=cv2.imread(os.path.join(ImgPath,OrgName))
+		print 'nico  '+OrgName
+		x=img.shape[0]
+		y=img.shape[1]
+		print 'checking image                '+TgtName+'with size '+str(x)+' '+str(y)
+		reshapeFlag=0;
+		rotationFlag=0;
+		if(x<y):
+			print 'need to rotate image ++++++++++++++++ flag is ' +str(rotationFlag)
+			rotationFlag=1;
+		if(x&1!=0):
+			print 'change shape of this iamge '+str(x)
+			x=x-1
+			reshapeFlag=1
+		if(y&1!=0):
+			print 'change shape of this iamge '+str(y)
+			y=y-1
+			reshapeFlag=1
+		if(reshapeFlag):
+			img2=img[0:x, 0:y, :]
+			#cv2.imwrite(os.path.join(ImgPath,'bkup_P'+str(idx+1).zfill(3)+'_'+ImgList[idx]),img)
+			#print 'saving new image with size '+str(img2.shape)
+			if(rotationFlag):
+				cv2.imwrite(os.path.join(ImgPath,TgtName), img2)
+			else:
+				#print 'now we  rotate image ----------------flag is ' +str(rotationFlag)
+				cv2.imwrite(os.path.join(ImgPath,TgtName), cv2.rotate(img2, cv2.ROTATE_90_CLOCKWISE) )
+				rotationFlag=0;
+		else:
+			if(rotationFlag):
+				cv2.imwrite(os.path.join(ImgPath,TgtName), img)
+				#os.rename(os.path.join(ImgPath,OrgName), os.path.join(ImgPath,TgtName))
+			else:
+				#cv2.imwrite(os.path.join(ImgPath,'bkup_P'+str(idx+1).zfill(3)+'_'+ImgList[idx]),img)
+				#print 'now we  rotate image ----------------flag is ' +str(rotationFlag)
+				cv2.imwrite(os.path.join(ImgPath,TgtName), cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE) )
+				rotationFlag=0;
+		#print 'renaming file from   '+OrgName
+		#print '                to   '+TgtName
+		print 'removing ........... '+os.path.join(ImgPath,OrgName)
+		os.remove(os.path.join(ImgPath,OrgName))
+		#os.rename(os.path.join(ImgPath,OrgName), os.path.join(ImgPath,TgtName))
+
+
+# below part of code just right a script into a farkme.sh file, and after this python, just execute the farkme.sh
+for folder in folders[1:]:
+	if(folder.find('DS_Store')>-1):
+		print 'DS store !!!!!!!!!!!!!!!!!!!!!jump'
+		continue
+	ImgPath=path+'/'+folder
+	ImgList=os.listdir(ImgPath)
+	ImgList.sort()
+	VideoName=folder.replace(' ','_')+'_ORG.mp4'
+	VideoAudioName=folder.replace(' ','_')+'.mp4'
+	cmd='ffmpeg -r 0.3 -f image2 -s 1000x1000 -start_number 1 -i P%03d.jpg -vcodec libx264 -crf 25  -pix_fmt yuv420p '+VideoName
+	#print 'now generating videos ', VideoName
+	#print 'calling cmd'
+	print 'cd '+ImgPath.replace(' ','\ ')+';'
+	print 'sleep 1'
+	#print 'cp /Users/mahannan/Audia/Pictia/jhead .;'
+	#print 'sleep 1'
+	#print 'chmod +x jhead;'
+	#print 'sleep 1'
+	print 'echo '+VideoName
+	#print './jhead -autorot *.jpg;'
+	print 'sleep 1'
+	print cmd+';'
+	print 'sleep 1'
+  #add some autio to the vid for your pleasure.
+	print 'ffmpeg -i '+VideoName+' -i /Users/mahannan/Audia/Pictia/audio.mp3 -c copy -map 0:v:0 -map 1:a:0 '+VideoAudioName
+	#strA=os.path.join(ImgPath,VideoName)
+	#strB=os.path.join(path,VideoName)
+	print 'rm '+VideoName
+	strA=os.path.join(ImgPath,VideoAudioName)
+	strB=os.path.join(path,VideoAudioName)
+	print 'mv '+strA.replace(' ','\ ')+' '+strB.replace(' ','\ ')
+	#os.system(cmd)
+	#os.rename(os.path.join(ImgPath,VideoName), os.path.join(path,VideoName))
+
