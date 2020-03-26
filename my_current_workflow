@@ -1,0 +1,281 @@
+1. download and unzip from mrcong.com, you get a tons of folders each folder containing a single album of a bunch of UHD photos
+2. move these folders to ~/Pictures/UN
+3. batch rename following below rules: 
+3.1 remove ( and ) and & and .
+3.2 substitude " " to _
+
+
+
+/////////////////////////////////////////////////////////
+before March 10:
+4. search among these folders on mac, use "orientation" of images, 0 means WxH W>H, 1 means otherwise. 
+4.1 when playing with gigabytes of UHD photos you need to give it a few minutes for farking mac indexing service to kick in. unless your search result is not stable Bad Apple! 
+5. on a stable, complete, full, accurate search result (this is the year 9012 and human still have to wait for farking slow computers to catch up and have to worry about inaccuracy? wtf? farking apple, you lost your coolness after Jobs left)
+5.1 on a stable, complete, full, accurate search result of orientation==1, select all, command+R to rotate them cloclwise 90 degrees.
+5.2 this is very farking funny here, some jarhead in apple inc decided that this rotation actually NOT rotating the image pixel data itself (yeah I kindd agree it will talk a lot of time but let anyone know this before you make this self-recognized-genius decision OK?)
+instead, only a tag in image header is tagged, so under mac, image viewer will pick this up and display the image as ROTATED. However, when moving them to windows, or processing by other tools (e.g. ffmpeg), those farking image still NOT ROTATED.
+6. use jhead tool to fix this issue. jhead will read the image header and rotate image when necessary, make the header and the image pixel payload MATCH. Learn it, bad apple!
+i run this on top of all image folders, good thing is that good people as mrcong only name their UHD photos in .jpg, not .JPG or jpeg or JPEG or J2K or whatever
+                
+                find . -name '*.jpg' | xargs ./jhead -autorot
+                
+7. after this, run ffmpeg.
+
+
+
+
+//////////////////////////////////////////////////////////////
+after March10:
+run this python first, it will rotate the image, fix odd image size to even image, and rename image as P0xx.jpg
+then run another ListOnly python, output to a farkme.sh file
+execute the farkme.sh file to generate ffmpeg files.
+it will first generate photo slide video, then add a music to it.
+as Eric Cartman once said, when he is farked by his mom, he would love to have a smoke and listen to some music. ha!
+
+
+///////////////////////////////////////////////////////////////
+first python to prepare image files:
+import cv2
+import os
+import shutil 
+
+
+
+
+path='/Users/mahannan/Pictures/UN'
+PLZpath='/Users/mahannan/Audia/Pictia/PLZ.jpg'
+
+
+
+folders = os.listdir(path)
+folders.sort()
+LenFolders = len(folders)
+for folder in folders[1:]:
+	#print 'folder is   ', folder
+	if(folder.find('DS_Store')>-1):
+		#print 'DS store !!!!!!!!!!!!!!!!!!!!!jump'
+		continue
+	ImgPath=path+'/'+folder
+	ImgList=os.listdir(ImgPath)
+	ImgList.sort()
+	bigW=0;
+	bigH=0;
+	bigIdx=0;
+	for idx in range(len(ImgList)):
+		OrgName=ImgList[idx]
+		if(OrgName.find('DS_Store')>-1):
+			#print 'DS store !!!!!!!!!!!!!!!!!!!!!jump'
+			continue
+		bigIdx=bigIdx+1
+		if(bigIdx==3):
+			TgtName='P'+str(bigIdx).zfill(3)+'.jpg'
+			shutil.copyfile(PLZpath, os.path.join(ImgPath,TgtName))
+			bigIdx=bigIdx+1
+#		if(bigIdx==10):
+#			TgtName='P'+str(bigIdx).zfill(3)+'.jpg'
+#			shutil.copyfile(PLZpath, os.path.join(ImgPath,TgtName))
+#			bigIdx=bigIdx+1
+		if(bigIdx==15):
+			TgtName='P'+str(bigIdx).zfill(3)+'.jpg'
+			shutil.copyfile(PLZpath, os.path.join(ImgPath,TgtName))
+			bigIdx=bigIdx+1
+#		if(bigIdx==20):
+#			TgtName='P'+str(bigIdx).zfill(3)+'.jpg'
+#			shutil.copyfile(PLZpath, os.path.join(ImgPath,TgtName))
+#			bigIdx=bigIdx+1
+		if(bigIdx==25):
+			TgtName='P'+str(bigIdx).zfill(3)+'.jpg'
+			shutil.copyfile(PLZpath, os.path.join(ImgPath,TgtName))
+			bigIdx=bigIdx+1
+#		if(bigIdx==30):
+#			TgtName='P'+str(bigIdx).zfill(3)+'.jpg'
+#			shutil.copyfile(PLZpath, os.path.join(ImgPath,TgtName))
+#			bigIdx=bigIdx+1
+		if(bigIdx==35):
+			TgtName='P'+str(bigIdx).zfill(3)+'.jpg'
+			shutil.copyfile(PLZpath, os.path.join(ImgPath,TgtName))
+			bigIdx=bigIdx+1
+#		if(bigIdx==40):
+#			TgtName='P'+str(bigIdx).zfill(3)+'.jpg'
+#			shutil.copyfile(PLZpath, os.path.join(ImgPath,TgtName))
+#			bigIdx=bigIdx+1
+		if(bigIdx==45):
+			TgtName='P'+str(bigIdx).zfill(3)+'.jpg'
+			shutil.copyfile(PLZpath, os.path.join(ImgPath,TgtName))
+			bigIdx=bigIdx+1
+		if(bigIdx==55):
+			TgtName='P'+str(bigIdx).zfill(3)+'.jpg'
+			shutil.copyfile(PLZpath, os.path.join(ImgPath,TgtName))
+			bigIdx=bigIdx+1
+		if(bigIdx==65):
+			TgtName='P'+str(bigIdx).zfill(3)+'.jpg'
+			shutil.copyfile(PLZpath, os.path.join(ImgPath,TgtName))
+			bigIdx=bigIdx+1
+		if(bigIdx==75):
+			TgtName='P'+str(bigIdx).zfill(3)+'.jpg'
+			shutil.copyfile(PLZpath, os.path.join(ImgPath,TgtName))
+			bigIdx=bigIdx+1
+		TgtName='P'+str(bigIdx).zfill(3)+'.jpg'	
+		img=cv2.imread(os.path.join(ImgPath,OrgName))
+		print 'nico  '+OrgName
+		x=img.shape[0]
+		y=img.shape[1]
+		print 'checking image                '+TgtName+'with size '+str(x)+' '+str(y)
+		reshapeFlag=0;
+		rotationFlag=0;
+		if(x<y):
+			print 'need to rotate image ++++++++++++++++ flag is ' +str(rotationFlag)
+			rotationFlag=1;
+			if(y>bigW):
+				bigW=y
+			if(x>bigH):
+				bigH=x
+		else:
+			if(x>bigW):
+				bigW=x
+			if(y>bigH):
+				bigH=y
+		if(x&1!=0):
+			print 'change shape of this iamge '+str(x)
+			x=x-1
+			reshapeFlag=1
+		if(y&1!=0):
+			print 'change shape of this iamge '+str(y)
+			y=y-1
+			reshapeFlag=1
+		if(reshapeFlag):
+			img2=img[0:x, 0:y, :]
+			#cv2.imwrite(os.path.join(ImgPath,'bkup_P'+str(idx+1).zfill(3)+'_'+ImgList[idx]),img)
+			#print 'saving new image with size '+str(img2.shape)
+			if(rotationFlag):
+				cv2.imwrite(os.path.join(ImgPath,TgtName), img2)
+			else:
+				#print 'now we  rotate image ----------------flag is ' +str(rotationFlag)
+				cv2.imwrite(os.path.join(ImgPath,TgtName), cv2.rotate(img2, cv2.ROTATE_90_CLOCKWISE) )
+				rotationFlag=0;
+		else:
+			if(rotationFlag):
+				cv2.imwrite(os.path.join(ImgPath,TgtName), img)
+				#os.rename(os.path.join(ImgPath,OrgName), os.path.join(ImgPath,TgtName))
+			else:
+				#cv2.imwrite(os.path.join(ImgPath,'bkup_P'+str(idx+1).zfill(3)+'_'+ImgList[idx]),img)
+				#print 'now we  rotate image ----------------flag is ' +str(rotationFlag)
+				cv2.imwrite(os.path.join(ImgPath,TgtName), cv2.rotate(img, cv2.ROTATE_90_CLOCKWISE) )
+				rotationFlag=0;
+		#print 'renaming file from   '+OrgName
+		#print '                to   '+TgtName
+		print 'removing ........... '+os.path.join(ImgPath,OrgName)
+		os.remove(os.path.join(ImgPath,OrgName))
+		#os.rename(os.path.join(ImgPath,OrgName), os.path.join(ImgPath,TgtName))
+	#bigW x bigH
+	print 'bigW ', str(bigW), '    bigH ', str(bigH)
+	#
+	#
+	#need to fix this: bigW  5400     bigH  3601 <---------------- !!!!!!!!!!!!!!!
+
+
+
+
+
+
+
+
+////////////////////////////////////////
+second python to output to a farkme.sh file
+import cv2
+import os
+path='/Users/mahannan/Pictures/UN2'
+folders = os.listdir(path)
+folders.sort()
+LenFolders = len(folders)		
+for folder in folders[1:]:
+	if(folder.find('DS_Store')>-1):
+		print 'DS store !!!!!!!!!!!!!!!!!!!!!jump'
+		continue
+	ImgPath=path+'/'+folder
+	ImgList=os.listdir(ImgPath)
+	ImgList.sort()
+	VideoName=folder.replace(' ','_')+'_ORG.mp4'
+	VideoAudioName=folder.replace(' ','_')+'.mp4'
+#	fix 5400x3600: 
+#	cmd='ffmpeg -r 0.3 -f image2 -start_number 1 -i P%03d.jpg -s 5400x3600 -vcodec libx264 -crf 25  -pix_fmt yuv420p '+VideoName
+	cmd='ffmpeg -r 0.3 -f image2 -s 5400x3600 -start_number 1 -i P%03d.jpg -vcodec libx264 -crf 25  -pix_fmt yuv420p '+VideoName
+	#print 'now generating videos ', VideoName
+	#print 'calling cmd'
+	print 'cd '+ImgPath.replace(' ','\ ')+';'
+	print 'sleep 1'
+	#print 'cp /Users/mahannan/Audia/Pictia/jhead .;'
+	#print 'sleep 1'
+	#print 'chmod +x jhead;'
+	#print 'sleep 1'
+	print 'echo '+VideoName
+	#print './jhead -autorot *.jpg;'
+	print 'sleep 1'
+	print cmd+';'
+	print 'sleep 1'
+	print 'ffmpeg -i '+VideoName+' -i /Users/mahannan/Audia/Pictia/audio.mp3 -c copy -map 0:v:0 -map 1:a:0 '+VideoAudioName
+	#strA=os.path.join(ImgPath,VideoName)
+	#strB=os.path.join(path,VideoName)
+	print 'rm '+VideoName
+	strA=os.path.join(ImgPath,VideoAudioName)
+	strB=os.path.join(path,VideoAudioName)
+	print 'mv '+strA.replace(' ','\ ')+' '+strB.replace(' ','\ ')
+	#os.system(cmd)
+	#os.rename(os.path.join(ImgPath,VideoName), os.path.join(path,VideoName))
+
+
+
+
+
+///////////////////////////////////////
+example of farkme.sh content
+cd /Users/mahannan/Pictures/UN2/XiaoYu_Vol199_Yang_Chen_Chen_杨晨晨sugar;
+sleep 1
+echo XiaoYu_Vol199_Yang_Chen_Chen_杨晨晨sugar_ORG.mp4
+sleep 1
+ffmpeg -r 0.3 -f image2 -s 5400x3600 -start_number 1 -i P%03d.jpg -vcodec libx264 -crf 25  -pix_fmt yuv420p XiaoYu_Vol199_Yang_Chen_Chen_杨晨晨sugar_ORG.mp4;
+sleep 1
+ffmpeg -i XiaoYu_Vol199_Yang_Chen_Chen_杨晨晨sugar_ORG.mp4 -i /Users/mahannan/Audia/Pictia/audio.mp3 -c copy -map 0:v:0 -map 1:a:0 XiaoYu_Vol199_Yang_Chen_Chen_杨晨晨sugar.mp4
+rm XiaoYu_Vol199_Yang_Chen_Chen_杨晨晨sugar_ORG.mp4
+mv /Users/mahannan/Pictures/UN2/XiaoYu_Vol199_Yang_Chen_Chen_杨晨晨sugar/XiaoYu_Vol199_Yang_Chen_Chen_杨晨晨sugar.mp4 /Users/mahannan/Pictures/UN2/XiaoYu_Vol199_Yang_Chen_Chen_杨晨晨sugar.mp4
+cd /Users/mahannan/Pictures/UN2/XiaoYu_Vol200_Miko酱吖;
+sleep 1
+echo XiaoYu_Vol200_Miko酱吖_ORG.mp4
+sleep 1
+ffmpeg -r 0.3 -f image2 -s 5400x3600 -start_number 1 -i P%03d.jpg -vcodec libx264 -crf 25  -pix_fmt yuv420p XiaoYu_Vol200_Miko酱吖_ORG.mp4;
+sleep 1
+ffmpeg -i XiaoYu_Vol200_Miko酱吖_ORG.mp4 -i /Users/mahannan/Audia/Pictia/audio.mp3 -c copy -map 0:v:0 -map 1:a:0 XiaoYu_Vol200_Miko酱吖.mp4
+rm XiaoYu_Vol200_Miko酱吖_ORG.mp4
+mv /Users/mahannan/Pictures/UN2/XiaoYu_Vol200_Miko酱吖/XiaoYu_Vol200_Miko酱吖.mp4 /Users/mahannan/Pictures/UN2/XiaoYu_Vol200_Miko酱吖.mp4
+cd /Users/mahannan/Pictures/UN2/XiaoYu_Vol201_程程程-;
+sleep 1
+echo XiaoYu_Vol201_程程程-_ORG.mp4
+sleep 1
+ffmpeg -r 0.3 -f image2 -s 5400x3600 -start_number 1 -i P%03d.jpg -vcodec libx264 -crf 25  -pix_fmt yuv420p XiaoYu_Vol201_程程程-_ORG.mp4;
+sleep 1
+ffmpeg -i XiaoYu_Vol201_程程程-_ORG.mp4 -i /Users/mahannan/Audia/Pictia/audio.mp3 -c copy -map 0:v:0 -map 1:a:0 XiaoYu_Vol201_程程程-.mp4
+rm XiaoYu_Vol201_程程程-_ORG.mp4
+mv /Users/mahannan/Pictures/UN2/XiaoYu_Vol201_程程程-/XiaoYu_Vol201_程程程-.mp4 /Users/mahannan/Pictures/UN2/XiaoYu_Vol201_程程程-.mp4
+cd /Users/mahannan/Pictures/UN2/XiaoYu_Vol204_Yang_Chen_Chen_杨晨晨sugar;
+sleep 1
+echo XiaoYu_Vol204_Yang_Chen_Chen_杨晨晨sugar_ORG.mp4
+sleep 1
+ffmpeg -r 0.3 -f image2 -s 5400x3600 -start_number 1 -i P%03d.jpg -vcodec libx264 -crf 25  -pix_fmt yuv420p XiaoYu_Vol204_Yang_Chen_Chen_杨晨晨sugar_ORG.mp4;
+sleep 1
+ffmpeg -i XiaoYu_Vol204_Yang_Chen_Chen_杨晨晨sugar_ORG.mp4 -i /Users/mahannan/Audia/Pictia/audio.mp3 -c copy -map 0:v:0 -map 1:a:0 XiaoYu_Vol204_Yang_Chen_Chen_杨晨晨sugar.mp4
+rm XiaoYu_Vol204_Yang_Chen_Chen_杨晨晨sugar_ORG.mp4
+mv /Users/mahannan/Pictures/UN2/XiaoYu_Vol204_Yang_Chen_Chen_杨晨晨sugar/XiaoYu_Vol204_Yang_Chen_Chen_杨晨晨sugar.mp4 /Users/mahannan/Pictures/UN2/XiaoYu_Vol204_Yang_Chen_Chen_杨晨晨sugar.mp4
+cd /Users/mahannan/Pictures/UN2/XiaoYu_Vol245_Booty_-_Zhizhi_芝芝;
+sleep 1
+echo XiaoYu_Vol245_Booty_-_Zhizhi_芝芝_ORG.mp4
+sleep 1
+ffmpeg -r 0.3 -f image2 -s 5400x3600 -start_number 1 -i P%03d.jpg -vcodec libx264 -crf 25  -pix_fmt yuv420p XiaoYu_Vol245_Booty_-_Zhizhi_芝芝_ORG.mp4;
+sleep 1
+ffmpeg -i XiaoYu_Vol245_Booty_-_Zhizhi_芝芝_ORG.mp4 -i /Users/mahannan/Audia/Pictia/audio.mp3 -c copy -map 0:v:0 -map 1:a:0 XiaoYu_Vol245_Booty_-_Zhizhi_芝芝.mp4
+rm XiaoYu_Vol245_Booty_-_Zhizhi_芝芝_ORG.mp4
+mv /Users/mahannan/Pictures/UN2/XiaoYu_Vol245_Booty_-_Zhizhi_芝芝/XiaoYu_Vol245_Booty_-_Zhizhi_芝芝.mp4 /Users/mahannan/Pictures/UN2/XiaoYu_Vol245_Booty_-_Zhizhi_芝芝.mp4
+
+
+
+
+
