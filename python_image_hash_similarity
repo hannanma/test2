@@ -1,0 +1,82 @@
+import cv2
+import os
+from PIL import Image
+import imagehash
+import pickle
+
+path='/Users/mahannan/Pictures/UN3'
+#path='/Users/mahannan/Audia/UN'
+
+
+
+folders = os.listdir(path)
+folders.sort()
+LenFolders = len(folders)
+for folder in folders[1:]:
+	print 'folder is   ', folder
+	if(folder.find('DS_Store')>-1):
+		print 'skip DS store jump'
+		continue
+	ImgPath=path+'/'+folder
+	ImgList=os.listdir(ImgPath)
+	ImgList.sort()
+	for idx in range(len(ImgList)):
+		OrgName=ImgList[idx]
+		print 'precheck Now in ', OrgName
+		if(OrgName.find('DS_Store')>-1):
+			print 'skip DS store jump with idx ', idx
+			break
+	ImgList.remove(OrgName)
+	ImgaHash=[x for x in range(len(ImgList))]
+	ImgpHash=[x for x in range(len(ImgList))]
+	ImgdHash=[x for x in range(len(ImgList))]
+	ImgwhHash=[x for x in range(len(ImgList))]
+	ImgwdHash=[x for x in range(len(ImgList))]
+	for idx in range(len(ImgList)):
+		OrgName=ImgList[idx]
+		print 'Now in ', OrgName
+		if(OrgName.find('DS_Store')>-1):
+			print 'skip DS store !!!!!!!!!!!!!!!!!!!!!jump'
+			continue
+		if(OrgName.find('P0')<0):
+			print 'why no P0 in current file name', OrgName
+			break
+		#img=cv2.imread(os.path.join(ImgPath,OrgName))
+		print 'Now in ', os.path.join(ImgPath,OrgName)
+		ImgaHash[idx]=imagehash.average_hash(Image.open( os.path.join(ImgPath,OrgName) ) ,hash_size=128)
+		#print ImgaHash[idx]
+		ImgpHash[idx]=imagehash.phash(Image.open( os.path.join(ImgPath,OrgName) ) ,hash_size=128) 
+		ImgdHash[idx]=imagehash.dhash(Image.open( os.path.join(ImgPath,OrgName) ) ,hash_size=128) 
+		ImgwhHash[idx]=imagehash.whash(Image.open( os.path.join(ImgPath,OrgName) ) ,hash_size=128) 
+		#ImgwdHash[idx]=imagehash.whash(Image.open( os.path.join(ImgPath,OrgName) ), mode='db4' ,hash_size=128) 
+	with open(os.path.join(ImgPath,'ImgaHash128'), 'wb') as f:
+		pickle.dump(ImgaHash, f)
+	with open(os.path.join(ImgPath,'ImgpHash128'), 'wb') as f:
+		pickle.dump(ImgpHash, f)
+	with open(os.path.join(ImgPath,'ImgdHash128'), 'wb') as f:
+		pickle.dump(ImgdHash, f)
+	with open(os.path.join(ImgPath,'ImgwhHash128'), 'wb') as f:
+		pickle.dump(ImgwhHash, f)
+	#with open(os.path.join(ImgPath,'ImgwdHash128'), 'wb') as f:
+	#	pickle.dump(ImgwdHash, f)
+	ImgHash=ImgaHash
+	for idx in range(len(ImgHash)):
+		diff=ImgHash[idx]-ImgHash[0]
+		print idx, '   ', ImgHash[idx], '   ', diff, '  against ', os.path.join(ImgPath,ImgList[idx])
+	ImgHash=ImgpHash
+	for idx in range(len(ImgHash)):
+		diff=ImgHash[idx]-ImgHash[0]
+		print idx, '   ', ImgHash[idx], '   ', diff, '  against ', os.path.join(ImgPath,ImgList[idx])
+	ImgHash=ImgdHash
+	for idx in range(len(ImgHash)):
+		diff=ImgHash[idx]-ImgHash[0]
+		print idx, '   ', ImgHash[idx], '   ', diff, '  against ', os.path.join(ImgPath,ImgList[idx])
+	ImgHash=ImgwhHash
+	for idx in range(len(ImgHash)):
+		diff=ImgHash[idx]-ImgHash[0]
+		print idx, '   ', ImgHash[idx], '   ', diff, '  against ', os.path.join(ImgPath,ImgList[idx])
+	#ImgHash=ImgwdHash
+	#for idx in range(len(ImgHash)):
+	#	diff=ImgHash[idx]-Imghash[0]
+	#	print idx, '   ', ImgHash[idx], '   ', diff, '  against ', os.path.join(ImgPath,ImgList[idx])
+		
