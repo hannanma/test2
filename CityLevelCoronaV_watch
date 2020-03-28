@@ -40,7 +40,11 @@ city of Claremont county of Los Angles state of California	1	1
 7. for each day, print map view as jpeg
 8. import jpeg into PPT, one pic per slide
 9. set morph as transition animation, export PPT to MP4 video as animation.
-
+10. ToDo:
+10.1 city logitude and altitude
+10.2 city region instead of just labels, a visulation may be need a different platform other than google mympa like coronavirus.1point3acres.com
+10.3 a few city/regison is placed WRONG ! need some tuning and polishing.
+10.4 need google map API to fully automate the workflow
 
 python script using python2
 
