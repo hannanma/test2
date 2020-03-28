@@ -1,0 +1,94 @@
+1. input LA county data example: http://publichealth.lacounty.gov/phcommon/public/media/mediapubhpdetail.cfm?prid=2282
+2. manual copy the city level data to *.txt:
+
+... ...
+Brentwood 34
+Burbank 3
+Calabasas 4
+Canoga Park 2
+Canyon Country 1
+Carson 9
+... ...
+
+Note that starting from Mar27 some jarhead in the pubHeath of LA somehow decided to change the format, need to maually clean them up, or update python script to easily clean it up
+Note that some city is city, some is just incorporated regions.
+
+
+3. python script to process it as *.csv
+it will:
+3.1 use comma to seperate city name and confirmed case number
+3.2 csv to import to google mymap. google mymap will automatically search each cityname to place marker.
+3.3. to make google locate more accurately, change the city name from xxxx to :
+city of xxxx county of LA california
+3.4 mymap could color label (we would prefer a heat map), so based on the number of confirmed cases, generate a column of heat value, for google map to color the labels.
+ToDo: add city logitutde and altitude numbers, this is open data, easy to get.
+
+example output:
+... ...
+city of Bradbury county of Los Angles state of California	0	1
+city of Burbank county of Los Angles state of California	7	2
+city of Calabasas county of Los Angles state of California	7	2
+city of Carson county of Los Angles state of California	21	4
+city of Cerritos county of Los Angles state of California	1	1
+city of Claremont county of Los Angles state of California	1	1
+... ...
+
+
+4. manually import CSV to mymap
+5. manually color the labels based on heat value
+6. fix a map view and set it as default map view
+7. for each day, print map view as jpeg
+8. import jpeg into PPT, one pic per slide
+9. set morph as transition animation, export PPT to MP4 video as animation.
+
+
+python script using python2
+
+
+import re
+
+inpath='/Users/mahannan/Audia/Pictia/Mar25.txt'
+outpath='/Users/mahannan/Audia/Pictia/Mar25.csv'
+
+f=open(inpath, "r")
+f2=open(outpath, "w")
+
+f2.write("city, confirmed cases, heat label\n")
+
+for line in f.read().splitlines():
+	#line.rstrip('\n')
+	print 'before              ',line
+	line.replace('/',' ')
+	heat = re.search(r' (\d+)', line)
+	if(heat):
+		print 'heat found ', heat.group()
+		heat=int(heat.group())
+		print 'old heat ', heat
+		if(heat<5):
+			heat=1
+		elif(5<= heat<10):
+			heat=2
+		elif(10<=heat<20):
+			heat=3
+		elif(20<=heat<30):
+			heat=4
+		elif(30<=heat<40):
+			heat=5
+		else:
+			heat=6
+		print 'new heat ', heat
+	line = re.sub(" (\d+)", r" county of Los Angles state of California, \1", line)
+	if(heat):
+		#line.replace('\n', ',')
+		print 'after               ', line+", "+str(heat)
+		f2.write("city of "+line+", "+str(heat)+"\n")
+	else:
+		print 'after               ', line
+		f2.write("city of "+line+"\n")
+
+f.close()
+f2.close()
+
+
+
+
