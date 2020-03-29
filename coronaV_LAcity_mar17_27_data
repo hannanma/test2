@@ -1,0 +1,149 @@
+1. manually copy city data from http://publichealth.lacounty.gov/media/Coronavirus/ to txt files and name it to each day as Mar17.txt, Mar27.txt
+2. use previous script to transform txt to csv in the same name, Mar17.csv...Mar27.csv
+3. manually open each csv as txt file, replace " ," to ","
+I have to do this because I have no farking idea WHY in python when string=row['city'] and string.replace(" ", "") never works for me. WHY? WHY? farking WHY? where is my AR15? hey siri! route me to nearest kindergarden! I have a rap song to write!
+
+3.5 I manually combine Mar17-Mar27 csv into Mar_17_27_list.xlsx
+observe the data, EVERYDAY the city list grows. So the Mar27 city list is the farking longest
+
+4. I use a one-time-use python script test3.py to generate this LIST.csv
+it contains a pre-designed header row, and filled in the Mar27 data.
+I choose latest Mar27 data as the city list is the longest.
+
+5. I run python script test4.py, for each row of the LIST.csv i.e. for each city in Mar27 data, I open Mar26-Mar17 csv files and read all lines and look for a city that matches.
+here to make the city match, whhile having no idea why string.replace() failed on me to remove empty spaces,
+in step(3) I manually cleaned up my data to get rid of empty spaces.
+so whenever I have a match of city, I put that Mar-RR day's confirmed number and heat map number into the row (a python dictionary).
+after looping over all Mar17-26 files, this row is full, I write it to output.csv file.
+after looping over all LIST rows, my output.csv file is finished.
+I rename it to Mar_17_27.xlsx
+
+final output is:
+manual unsorted version: Mar_17_27_list.xlsx
+test4.py sorted combined version: Mar_17_27.xlsx
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+test3.py
+
+import re
+import csv
+
+
+csvpath='/Users/mahannan/Audia/Pictia/LIST.csv'
+finalcsv=open(csvpath, "w")
+finalcsv.write("city, Mar27 confirmed, Mar27 heat, Mar26 confirmed, Mar26 heat, Mar25 confirmed, Mar25 heat, Mar24 confirmed, Mar24 heat, Mar23 confirmed, Mar23 heat, Mar22 confirmed, Mar22 heat, Mar21 confirmed, Mar21 heat, Mar20 confirmed, Mar20 heat, Mar19 confirmed, Mar19 heat, Mar18 confirmed, Mar18 heat, Mar17 confirmed, Mar17 heat,\n")
+#finalcsv.close()
+
+
+
+date=27
+inpath='/Users/mahannan/Audia/Pictia/Mar'+str(date)+'.txt'
+outpath='/Users/mahannan/Audia/Pictia/Mar'+str(date)+'.csv'
+#print inpath
+#print outpath
+dict1={}
+dict2={}
+with open(outpath) as csvfile:
+	reader = csv.DictReader(csvfile)
+	for row in reader:
+		#print(row['city'], row[' confirmed cases'], row[' heat label'])
+		print row
+		##city, v, heat = row
+		##print city
+		##print v
+		##print heat
+		dict1[row['city']]=row[' confirmed cases']
+		dict2[row['city']]=row[' heat label']
+#print(dict1)
+#print(dict2)
+
+f=open(outpath, "r")
+for line in f:
+	finalcsv.write(line)
+
+
+
+
+date=26
+outpath='/Users/mahannan/Audia/Pictia/Mar'+str(date)+'.csv'
+#print inpath
+#print outpath
+dict1={}
+dict2={}
+with open(outpath) as csvfile:
+	reader = csv.DictReader(csvfile)
+	for row in reader:
+		#print(row['city'], row[' confirmed cases'], row[' heat label'])
+		##city, v, heat = row
+		##print city
+		##print v
+		##print heat
+		dict1[row['city']]=row[' confirmed cases']
+		dict2[row['city']]=row[' heat label']
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////
+test4.py
+
+import re
+import csv
+
+
+csvpath='/Users/mahannan/Audia/Pictia/LIST.csv'
+finalcsv=open(csvpath, "r")
+#finalcsv.write("city, Mar27 confirmed, Mar27 heat, Mar26 confirmed, Mar26 heat, Mar25 confirmed, Mar25 heat, Mar24 confirmed, Mar24 heat, Mar23 confirmed, Mar23 heat, Mar22 confirmed, Mar22 heat, Mar21 confirmed, Mar21 heat, Mar20 confirmed, Mar20 heat, Mar19 confirmed, Mar19 heat, Mar18 confirmed, Mar18 heat, Mar17 confirmed, Mar17 heat,\n")
+#finalcsv.close()
+#finalreader=csv.DictReader(finalcsv)
+#for row in finalreader:
+
+match=0
+idx=0
+with open(csvpath) as csvfile:
+	final=csv.DictReader(csvfile)
+	outputpath='/Users/mahannan/Audia/Pictia/output.csv'
+	finaloutput=open(outputpath, "w")
+	outputwriter=csv.DictWriter(finaloutput,fieldnames=final.fieldnames)	
+	for row in final:
+		idx=idx+1
+		if(idx<2):continue
+		for date in range(17,27):
+			outpath='/Users/mahannan/Audia/Pictia/Mar'+str(date)+'.csv'
+			with open(outpath) as csvfile2:
+				reader = csv.DictReader(csvfile2)
+				for row2 in reader:
+					str1=str(row['city'])
+					str2=str(row2['city'])
+					print str1+'.', " with ", str2+'.'
+					#str1.replace(" ","fark")
+					#str2.replace(" ","fark")
+					#print str1+'.', " after ", str2+'.'
+					#if -1<str2.find(str1)<3:
+					if str1 == str2:
+						strz=str(date)
+						strx=' Mar'+strz+' confirmed'
+						stry=' Mar'+strz+' heat'
+						row[strx]=row2[' confirmed cases']
+						row[stry]=row2[' heat label']
+		outputwriter.writerow(row)
+
