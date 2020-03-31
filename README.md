@@ -1,7 +1,7 @@
 in City_FIPS_csv.zip:
 
 1. manually prepare LAdata.csv as LA cities with population data, (and sub-community data) 
-2. manually prepare CAdata.csv as CA cities with FIPS code, per Census department in 2016, 
+2. manually prepare CAdata.csv as CA cities with FIPS code, per Census department in 2016, (https://www.census.gov/geographies/reference-files/2016/demo/popest/2016-fips.html)
 in form of Summary Level,State Code,County Code,Place Code
 Note that some "large city" have non-zero county code and zeor place code
 some "small city" have zero county code but non-zero place code
